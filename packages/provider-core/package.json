@@ -87,6 +87,10 @@
       "types": "./src/server/nativeProtocolLogging.ts",
       "import": "./src/server/nativeProtocolLogging.ts"
     },
+    "./server/nextStepsPrompt": {
+      "types": "./src/server/nextStepsPrompt.ts",
+      "import": "./src/server/nextStepsPrompt.ts"
+    },
     "./server/notification": {
       "types": "./src/server/notification.ts",
       "import": "./src/server/notification.ts"

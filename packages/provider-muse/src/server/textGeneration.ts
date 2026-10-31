@@ -19,6 +19,10 @@ import { museModelCapabilities, resolveMuseReasoningEffort } from "./modelCatalo
 import type { ProviderTextGeneration } from "@t3tools/provider-core/server/textGeneration";
 import { investigationUnsupported } from "@t3tools/provider-core/server/textGenerationOperations";
 import {
+  buildNextStepsPrompt,
+  sanitizeNextSteps,
+} from "@t3tools/provider-core/server/nextStepsPrompt";
+import {
   buildBranchNamePrompt,
   buildCommitMessagePrompt,
   buildPrContentPrompt,
@@ -342,11 +346,22 @@ export const makeMuseTextGeneration = Effect.fn("makeMuseTextGeneration")(functi
   });
   const generateReviewGuide: ProviderTextGeneration["generateReviewGuide"] = () =>
     Effect.fail(investigationUnsupported("generateReviewGuide", "Muse Code"));
+  const generateNextSteps: ProviderTextGeneration["generateNextSteps"] = Effect.fn(
+    "MuseTextGeneration.generateNextSteps",
+  )(function* (input) {
+    const generated = yield* runMuseJson({
+      operation: "generateNextSteps",
+      ...buildNextStepsPrompt(input),
+      modelSelection: input.modelSelection,
+    });
+    return { steps: sanitizeNextSteps(generated.steps) };
+  });
   return {
     generateCommitMessage,
     generatePrContent,
     generateBranchName,
     generateThreadTitle,
     generateReviewGuide,
+    generateNextSteps,
   } satisfies ProviderTextGeneration;
 });

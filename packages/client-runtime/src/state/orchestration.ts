@@ -1,5 +1,6 @@
 import {
   ORCHESTRATION_V2_WS_METHODS,
+  WS_METHODS,
   type ThreadId,
   type OrchestrationGetTurnDiffResult,
 } from "@t3tools/contracts";
@@ -110,6 +111,13 @@ export function createOrchestrationEnvironmentAtoms<R, E>(
     forceStopThread: createEnvironmentRpcCommand(runtime, {
       label: "environment-data:orchestration:force-stop-thread",
       tag: ORCHESTRATION_V2_WS_METHODS.forceStopThread,
+    }),
+    // Keyed by run, so a settled answer never goes stale; the server shares it across clients.
+    nextSteps: createEnvironmentRpcQueryAtomFamily(runtime, {
+      label: "environment-data:orchestration:next-steps",
+      tag: WS_METHODS.nextStepsGenerate,
+      staleTimeMs: 30 * 60_000,
+      idleTtlMs: 30 * 60_000,
     }),
     turnItem: createEnvironmentRpcQueryAtomFamily(runtime, {
       label: "environment-data:orchestration:turn-item",

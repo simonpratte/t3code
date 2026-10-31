@@ -28,6 +28,7 @@ import type {
   EnvironmentContextRecord,
   ProviderInteractionMode,
   ResolvedKeybindingsConfig,
+  RunId,
   RuntimeMode,
   RuntimeRequestId,
   ScopedThreadRef,
@@ -201,6 +202,7 @@ import { ComposerPrimaryActions } from "./ComposerPrimaryActions";
 import { ComposerFooterPrimaryActions } from "./ComposerFooterControls";
 import { ComposerPendingUserInputPanel } from "./ComposerPendingUserInputPanel";
 import { ComposerPlanFollowUpBanner } from "./ComposerPlanFollowUpBanner";
+import { NextStepsCard } from "./NextStepsCard";
 import { resolveComposerMenuActiveItemId } from "./composerMenuHighlight";
 import { buildPullRequestReferenceContext } from "../pullRequest/pullRequestDetail.logic";
 import { getComposerPromptInjectionState, getComposerReasoningStep } from "./composerProviderState";
@@ -365,6 +367,8 @@ export interface ChatComposerProps {
   activeThreadId: ThreadId | null;
   activeThread: Thread | undefined;
   activeThreadShell: ThreadShell | null;
+  /** The last completed run that next steps follow; it stays while a newer turn runs. */
+  nextStepsRunId: RunId | null;
   promptHistoryMessages: ReadonlyArray<ChatMessage>;
   forceExpandedOnMobile: boolean;
   projectSelectionRequired: boolean;
@@ -3141,6 +3145,16 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
       <ComposerBanner.Dock>
         <ComposerBanner.Column>
           <ComposerBannerStack items={shelfItems} />
+          {canOperateThread && props.activeThreadShell ? (
+            <NextStepsCard
+              environmentId={environmentId}
+              thread={props.activeThreadShell}
+              runId={props.nextStepsRunId}
+              runtimeMode={runtimeMode}
+              interactionMode={interactionMode}
+              models={{ instanceEntries: providerInstanceEntries, modelOptionsByInstance }}
+            />
+          ) : null}
           {showComposerTopDrawer ? (
             <ComposerBanner.Attachment>
               <ComposerBanner.Root data-chat-composer-top-drawer="true" variant="info">

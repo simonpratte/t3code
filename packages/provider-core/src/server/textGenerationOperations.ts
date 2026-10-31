@@ -18,6 +18,7 @@ import {
   sanitizePrTitle,
   sanitizeThreadTitle,
 } from "./textGenerationUtils.ts";
+import { buildNextStepsPrompt, sanitizeNextSteps } from "./nextStepsPrompt.ts";
 
 export type Operation = keyof ProviderTextGeneration;
 
@@ -167,11 +168,24 @@ export function fromRunner(name: string, run: Runner): ProviderTextGeneration {
     });
   });
 
+  const generateNextSteps: ProviderTextGeneration["generateNextSteps"] = Effect.fn(
+    `${name}.generateNextSteps`,
+  )(function* (input) {
+    const generated = yield* run({
+      operation: "generateNextSteps",
+      cwd: input.cwd,
+      modelSelection: input.modelSelection,
+      ...buildNextStepsPrompt(input),
+    });
+    return { steps: sanitizeNextSteps(generated.steps) };
+  });
+
   return {
     generateCommitMessage,
     generatePrContent,
     generateBranchName,
     generateThreadTitle,
     generateReviewGuide,
+    generateNextSteps,
   } satisfies ProviderTextGeneration;
 }

@@ -2,6 +2,7 @@ import type {
   BranchNamingOptions,
   ChatAttachment,
   ModelSelection,
+  NextStep,
   PullRequestReviewGuide,
   TextGenerationError,
 } from "@t3tools/contracts";
@@ -72,6 +73,22 @@ export interface ThreadTitleGenerationResult {
   needsRefinement?: boolean | undefined;
 }
 
+export interface NextStepsMessage {
+  readonly role: "user" | "assistant";
+  readonly text: string;
+}
+
+export interface NextStepsGenerationInput {
+  cwd: string;
+  /** Chronological; the prompt keeps the most recent messages that fit. */
+  messages: ReadonlyArray<NextStepsMessage>;
+  modelSelection: ModelSelection;
+}
+
+export interface NextStepsGenerationResult {
+  steps: ReadonlyArray<NextStep>;
+}
+
 export interface ReviewGuideStackLayer {
   readonly number: number;
   readonly title: string | null;
@@ -117,4 +134,8 @@ export interface ProviderTextGeneration {
   readonly generateReviewGuide: (
     input: ReviewGuideGenerationInput,
   ) => Effect.Effect<ReviewGuideGenerationResult, TextGenerationError>;
+
+  readonly generateNextSteps: (
+    input: NextStepsGenerationInput,
+  ) => Effect.Effect<NextStepsGenerationResult, TextGenerationError>;
 }
